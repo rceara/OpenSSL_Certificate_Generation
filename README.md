@@ -26,3 +26,37 @@ root@collector1:# sudo dpkg -i openssl_1.1.1f-1ubuntu2.16_amd64.deb
 root@collector1:# openssl version
 OpenSSL 1.1.1f  31 Mar 2020
 ```
+After the installation of openssl is done you need to generate the certs with the mkcerts-modified.sh script, you can follow the steps provided below. The script will generate all the certificates needed for the collectors and the WLCs. In the below example we need to specify the FQDN of the Collectors and the hostname of the WLC.
+```bash
+root@collector1:~/example# ls
+mkcerts-modified.sh
+
+root@collector1:~/example# bash mkcerts-modified.sh collector1.yourdomainname.com wlc1.9840.yourdomainname.com
+Configure trustpoints using the following:
+crypto pki import <trustpoint name 1> pem terminal password admin12345
+ <paste contents of collector1.yourdomainname.com-ca.crt>
+ <paste contents of wlc1.9840.yourdomainname.com.key>
+ <paste contents of wlc1.9840.yourdomainname.com-collector1.yourdomainname.com-ca.crt
+crypto pki import <trustpoint name 2> pem terminal password admin12345
+ <paste contents of wlc1.9840.yourdomainname.com-ca.crt>
+ <paste contents of wlc1.9840.yourdomainname.com.key>
+ <paste contents of wlc1.9840.yourdomainname.com-wlc1.9840.yourdomainname.com-ca.crt>
+
+Configure telemetry using the following:
+
+telemetry protocol grpc profile <profile name>
+ ca-trustpoint <trustpoint name 1>
+ id-trustpoint <trustpoint name 2>
+telemetry receiver protocol <receiver name>
+ host name collector1.amazonaccountteam.com <collector port>
+ protocol grpc-tls profile <profile name>
+
+root@collector1:~/example# ls
+ca.cnf                                   collector1.amazonaccountteam.com.csr    wlc1.9840.amazonaccountteam.com.cnf
+collector1.amazonaccountteam.com-ca.crt  collector1.amazonaccountteam.com.key    wlc1.9840.amazonaccountteam.com-collector1.amazonaccountteam.com-ca.crt
+collector1.amazonaccountteam.com-ca.key  mkcerts-modified.sh                     wlc1.9840.amazonaccountteam.com.csr
+collector1.amazonaccountteam.com-ca.srl  wlc1.9840.amazonaccountteam.com-ca.crt  wlc1.9840.amazonaccountteam.com.key
+collector1.amazonaccountteam.com.cnf     wlc1.9840.amazonaccountteam.com-ca.key  wlc1.9840.amazonaccountteam.com-wlc1.9840.amazonaccountteam.com-ca.crt
+collector1.amazonaccountteam.com.crt     wlc1.9840.amazonaccountteam.com-ca.srl
+root@collector1:~/example# 
+```
