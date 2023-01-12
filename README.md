@@ -4,6 +4,8 @@
 
 ## Before you proceed to generate the certificates with the script, make sure you are running OpenSSL 1.1.1 on your Ubuntu server. Why? Because OpenSSL 3.0 doesn’t generate the key as Private RSA Keys. This is the major difference between 3.0 and 1.1.1 versions. With OpenSSL 3.0 you need to specify which provider concept you want to use for your keys, if not, it will generate the standard generic keys and those keys will not work with your IOS-XE devices when you try to load the pem certs through the terminal. This is a workaround until we get the certs script working with OpenSSL 3.0.
 
+This process is to generate the certificates needed for gRPC mTLS authentication.
+
 How to know what version of OpenSSL you are running?
 ```bash
 root@collector1:# openssl version
@@ -26,7 +28,7 @@ root@collector1:# sudo dpkg -i openssl_1.1.1f-1ubuntu2.16_amd64.deb
 root@collector1:# openssl version
 OpenSSL 1.1.1f  31 Mar 2020
 ```
-After the installation of openssl is done you need to generate the certs with the mkcerts-modified.sh script, you can follow the steps provided below. The script will generate all the certificates needed for the collectors and the WLCs. In the below example we need to specify the FQDN of the Collectors and the hostname of the WLC.
+When the installation of openssl is done you need to generate the certs with the mkcerts-modified.sh script, you can follow the steps provided below. The script will generate all the certificates needed for the collectors and the WLCs. In the below example we need to specify the FQDN of the Collectors and the hostname of the WLC.
 ```bash
 root@collector1:~/example# ls
 mkcerts-modified.sh
@@ -59,4 +61,88 @@ collector1.amazonaccountteam.com-ca.srl  wlc1.9840.amazonaccountteam.com-ca.crt 
 collector1.amazonaccountteam.com.cnf     wlc1.9840.amazonaccountteam.com-ca.key  wlc1.9840.amazonaccountteam.com-wlc1.9840.amazonaccountteam.com-ca.crt
 collector1.amazonaccountteam.com.crt     wlc1.9840.amazonaccountteam.com-ca.srl
 root@collector1:~/example# 
+```
+Here is how you load the Certs after generated to the WLCs for mTLS authentication:
+1st cert:
+```bash
+wlc1.9840#crypto pki import ca1 pem terminal password admin12345
+
+% Enter PEM-formatted CA certificate.
+% End with a blank line or "quit" on a line by itself.
+-----BEGIN CERTIFICATE-----
+       cert-content
+-----END CERTIFICATE-----
+quit
+% Enter PEM-formatted encrypted private General Purpose key.
+% End with "quit" on a line by itself.
+-----BEGIN RSA PRIVATE KEY-----
+Proc-Type: 4,ENCRYPTED
+DEK-Info: DES-EDE3-CBC,XXXXXXXXXXXXX
+-----BEGIN CERTIFICATE-----
+       cert-content
+-----END CERTIFICATE----- 
+quit
+% Enter PEM-formatted General Purpose certificate.
+% End with a blank line or "quit" on a line by itself.
+-----BEGIN CERTIFICATE-----
+       cert-content 
+-----END CERTIFICATE-----
+quit
+% PEM files import succeeded.
+```
+2nd cert:
+```bash
+wlc1.9840#crypto pki import id1 pem terminal password admin12345 
+
+% Enter PEM-formatted CA certificate.
+% End with a blank line or "quit" on a line by itself.
+-----BEGIN CERTIFICATE----- 
+       cert-content 
+-----END CERTIFICATE----- 
+quit
+% Enter PEM-formatted encrypted private General Purpose key.
+% End with "quit" on a line by itself.
+-----BEGIN RSA PRIVATE KEY----- 
+Proc-Type: 4,ENCRYPTED 
+DEK-Info: DES-EDE3-CBC,XXXXXXXXXXXXX 
+-----BEGIN CERTIFICATE----- 
+       cert-content  
+-----END CERTIFICATE----- 
+quit 
+% Enter PEM-formatted General Purpose certificate.
+% End with a blank line or "quit" on a line by itself.
+-----BEGIN CERTIFICATE----- 
+       cert-content 
+-----END CERTIFICATE----- 
+quit 
+% PEM files import succeeded.
+```
+Telemetry CLI configuration setup on the WLC with the certificates and setup of an xpath:
+```bash
+telemetry protocol grpc profile mtlsyangsuite
+ ca-trustpoint ca1
+ id-trustpoint id1
+
+telemetry receiver protocol mtlsyangsuite
+ host name collector1.yourdomainname.com 57500
+ protocol grpc-tls profile mtlsyangsuite
+
+telemetry ietf subscription 1
+ encoding encode-kvgpb
+ filter xpath /process-cpu-ios-xe-oper:cpu-usage/cpu-utilization/five-seconds
+ receiver-type protocol
+ source-address 10.93.178.68
+ stream yang-push
+ update-policy periodic 1000
+ receiver name mtlsyangsuite
+```
+After the setup of the collectors is done and the WLC as well, you should see everything up and running on the WLC:
+```bash
+wlc1.9840#show telemetry connection all
+Telemetry connections
+
+Index Peer Address               Port  VRF Source Address             State      State Description
+----- -------------------------- ----- --- -------------------------- ---------- --------------------
+  401 10.93.178.143              57500 0   10.93.178.68               Active     Connection up       
+  402 10.93.178.142              57500 0   10.93.178.68               Active     Connection up       
 ```
