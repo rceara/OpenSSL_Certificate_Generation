@@ -4,6 +4,8 @@
 
 ## Before you proceed to generate the certificates with the script, make sure you are running OpenSSL 1.1.1 on your Ubuntu server. Why? Because OpenSSL 3.0 doesn’t generate the key as Private RSA Keys. This is the major difference between 3.0 and 1.1.1 versions. With OpenSSL 3.0 you need to specify which provider concept you want to use for your keys, if not, it will generate the standard generic keys and those keys will not work with your IOS-XE devices when you try to load the pem certs through the terminal. This is a workaround until we get the certs script working with OpenSSL 3.0.
 
+Also, please make sure you sync-up all your devices with a NTP Server to avoid issues with different timezones and certificate to be in sync. Certificates are backdated by one hour to allow for clock skew. All certificates use UTC time, the time zone is stored as part of the date in the certificate. User agents in other timezones are fine as long as their time zone and clocks is configured correctly.
+
 This process is to generate the certificates needed for gRPC mTLS authentication.
 
 How to know what version of OpenSSL you are running?
