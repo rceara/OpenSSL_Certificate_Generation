@@ -22,9 +22,9 @@ You can download it from here or proceed to download them with wget.
 
 Then, proceed to install OpenSSL 1.1.1:
 ```bash
-root@collector1:# wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb
-root@collector1:# wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl/openssl_1.1.1f-1ubuntu2.16_amd64.deb
-root@collector1:# wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl-dev_1.1.1f-1ubuntu2.16_amd64.deb
+root@collector1:# wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.17_amd64.deb
+root@collector1:# wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl/openssl_1.1.1f-1ubuntu2.17_amd64.deb
+root@collector1:# wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl-dev_1.1.1f-1ubuntu2.17_amd64.deb
 
 root@collector1:# sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb
 root@collector1:# sudo dpkg -i libssl-dev_1.1.1f-1ubuntu2.16_amd64.deb
