@@ -26,9 +26,9 @@ root@collector1:# wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libs
 root@collector1:# wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl/openssl_1.1.1f-1ubuntu2.17_amd64.deb
 root@collector1:# wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl-dev_1.1.1f-1ubuntu2.17_amd64.deb
 
-root@collector1:# sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb
-root@collector1:# sudo dpkg -i libssl-dev_1.1.1f-1ubuntu2.16_amd64.deb
-root@collector1:# sudo dpkg -i openssl_1.1.1f-1ubuntu2.16_amd64.deb
+root@collector1:# sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.17_amd64.deb
+root@collector1:# sudo dpkg -i libssl-dev_1.1.1f-1ubuntu2.17_amd64.deb
+root@collector1:# sudo dpkg -i openssl_1.1.1f-1ubuntu2.17_amd64.deb
 
 root@collector1:# openssl version
 OpenSSL 1.1.1f  31 Mar 2020
